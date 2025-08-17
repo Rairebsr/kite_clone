@@ -15,6 +15,8 @@ const ProfileModal = ({ show, onClose }) => {
         })
         .then((res) => {
           setUser(res.data);
+          console.log(res.data);
+          
           setIsLoading(false);
         })
         .catch((err) => {

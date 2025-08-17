@@ -48,7 +48,11 @@ const Sidebar = () => {
   const [showGroupInput, setShowGroupInput] = useState(false);
   const [addingType, setAddingType] = useState('');
   const [selectedChartStock, setSelectedChartStock] = useState(null);
-  const [state,setState] = useState('')
+  const [state,setState] = useState('');
+  const [editingWatchlist, setEditingWatchlist] = useState(null);
+  const [newWatchlistName, setNewWatchlistName] = useState('');
+
+
 
   const {showBuyModal, setShowBuyModal,showChartModal,setShowChartModal,showDepth,setShowDepth} = useContext(userContext)
   
@@ -94,25 +98,39 @@ const currentWatchlist = watchlists[selectedWatchlist] || { groups: {} };
 
   const addStockToGroup = (stock) => {
   setSearchTerm('');
+  
   setWatchlists(prev => {
-    const updated = { ...prev };
+  const prevWatchlist = prev[selectedWatchlist];
+  if (!prevWatchlist) return prev;
 
-    if (!updated[selectedWatchlist]) return prev;
-    if (!updated[selectedWatchlist].groups[selectedGroup]) {
-      updated[selectedWatchlist].groups[selectedGroup] = [];
-    }
+  const prevGroups = prevWatchlist.groups || {};
+  const prevGroupStocks = prevGroups[selectedGroup] || [];
 
-    const groupStocks = updated[selectedWatchlist].groups[selectedGroup];
+  if (prevGroupStocks.some(s => s.symbol === stock.symbol)) {
+    return prev;
+  }
 
-    if (!groupStocks.some(s => s.symbol === stock.symbol)) {
-      updated[selectedWatchlist].groups[selectedGroup] = [...groupStocks, stock];
+  const newGroups = {
+    ...prevGroups,
+    [selectedGroup]: [...prevGroupStocks, stock],
+  };
 
-      if (userId) syncWithServer(updated);
-      return updated;
-    }
+  const newWatchlist = {
+    ...prevWatchlist,
+    groups: newGroups,
+  };
 
-    return prev; // ←✅ return previous state if already exists
-  });
+  const updated = {
+    ...prev,
+    [selectedWatchlist]: newWatchlist,
+  };
+
+  if (userId) syncWithServer(updated);
+  console.log('Adding to:', selectedWatchlist, '->', selectedGroup);
+
+  return updated;
+});
+
 };
 
 
@@ -216,30 +234,25 @@ const handleOrderClick = (stock, action) => {
       const data = res.data;
 
       // Defensive check for structure
-      if (data && data.watchlists && Array.isArray(data.watchlists)) {
-        const mapped = {};
+      if (data?.watchlists?.length) {
+  const mapped = {};
 
-        data.watchlists.forEach((wl, index) => {
-          const watchlistName = wl.watchlistName || `Watchlist ${index + 1}`;
-          const groups = (wl.groups || []).reduce((acc, group) => {
-            acc[group.groupName || 'Default'] = group.stocks || [];
-            return acc;
-          }, {});
+  data.watchlists.forEach((wl, index) => {
+    const watchlistName = wl.watchlistName || `Watchlist ${index + 1}`;
+    const groups = (wl.groups || []).reduce((acc, group) => {
+      acc[group.groupName || 'Default'] = group.stocks || [];
+      return acc;
+    }, {});
 
-          mapped[watchlistName] = { groups };
-        });
+    mapped[watchlistName] = { groups };
+  });
 
-        setWatchlists(mapped);
-      } else {
-        // Fallback to default
-        setWatchlists({
-          'Watchlist 1': {
-            groups: {
-              Default: [],
-            },
-          },
-        });
-      }
+  setWatchlists(mapped);
+} else {
+  // Do not overwrite existing local state — keep what's already there
+  console.warn('No watchlists returned from backend — keeping local defaults');
+}
+
     } catch (err) {
       console.error('Failed to load watchlists:', err.message);
     }
@@ -306,7 +319,90 @@ useEffect(() => {
 
       {/* Watchlist Groups */}
       <div className="flex-1 overflow-y-auto px-4 py-2">
-        <h3 className="text-md font-bold mb-2">{currentWatchlistName}</h3>
+        
+        {Object.keys(watchlists).map((wl) => (
+  <div key={wl} className="flex items-center justify-between mb-2 gap-1">
+    {editingWatchlist === wl ? (
+      <input
+        autoFocus
+        type="text"
+        value={newWatchlistName}
+        onChange={(e) => setNewWatchlistName(e.target.value)}
+        onBlur={() => {
+          const trimmed = newWatchlistName.trim();
+          if (trimmed && trimmed !== wl) {
+            const updated = { ...watchlists };
+            updated[trimmed] = updated[wl];
+            delete updated[wl];
+            setWatchlists(updated);
+            setSelectedWatchlist(trimmed);
+            setEditingWatchlist(null);
+
+            if (userId) {
+              axios.post(`http://localhost:4000/api/watchlist/rename`, {
+                userId,
+                oldName: wl,
+                newName: trimmed
+              });
+              syncWithServer(updated);
+            }
+          } else {
+            setEditingWatchlist(null);
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') e.target.blur();
+        }}
+        className="text-sm border border-gray-300 rounded px-2 py-1 flex-1"
+      />
+    ) : (
+      <div
+        onClick={() => setSelectedWatchlist(wl)}
+        onDoubleClick={() => {
+          setEditingWatchlist(wl);
+          setNewWatchlistName(wl);
+        }}
+        className={`text-sm cursor-pointer flex-1 truncate ${
+          selectedWatchlist === wl ? 'font-bold text-blue-600' : 'text-gray-800'
+        }`}
+        title="Double-click to rename"
+      >
+        {wl}
+      </div>
+    )}
+
+    {/* Delete Button */}
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        const confirmed = window.confirm(`Delete "${wl}"?`);
+        if (!confirmed) return;
+
+        const updated = { ...watchlists };
+        delete updated[wl];
+
+        const keys = Object.keys(updated);
+        const fallback = keys.length ? keys[0] : '';
+        setSelectedWatchlist(fallback);
+        setWatchlists(updated);
+
+        if (userId) {
+          axios.post(`http://localhost:4000/api/watchlist/delete`, {
+            userId,
+            watchlistName: wl
+          });
+          syncWithServer(updated);
+        }
+      }}
+      className="text-xs text-red-500 hover:text-red-700 px-2"
+      title="Delete Watchlist"
+    >
+      ✕
+    </button>
+  </div>
+))}
+
+
         {Object.entries(currentWatchlist.groups).map(([groupName, stocks]) => (
           <div 
             key={groupName} 

@@ -8,7 +8,10 @@ import listRouter from './routes/watchlist.js'
 import orderRouter from './routes/order.js'
 import gttrouter from './routes/gtt.js'
 import fundrouter from './routes/fund.js'
-
+import router from './routes/alertsRoutes.js';
+import ipoRoutes from './routes/ipoRoutes.js';
+import Grouter from './routes/gsecRoutes.js';
+import brouter from "./routes/basket.js";
 //App config
 const app = express()
 const port = process.env.PORT || 4000
@@ -26,7 +29,10 @@ app.use('/api/watchlist',listRouter)
 app.use('/api/order',orderRouter)
 app.use('/api/gtt',gttrouter)
 app.use('/api/funds',fundrouter)
-
+app.use('/api/alerts', router);
+app.use("/api/ipo", ipoRoutes);
+app.use("/api/gsec", Grouter);
+app.use("/api/baskets", brouter);
 app.get('/',(req,res)=>{
     res.send("API working")
 })

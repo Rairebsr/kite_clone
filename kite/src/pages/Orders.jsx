@@ -12,7 +12,7 @@ const Orders = () => {
     <div className="p-4">
       {/* Tabs Navbar */}
       <div className="flex gap-4 border-b mb-4">
-        <NavLink to="/orders/orders" end className={tabStyle}>
+        <NavLink to="/orders/orders" className={tabStyle}>
           Orders
         </NavLink>
         <NavLink to="/orders/gtt" className={tabStyle}>

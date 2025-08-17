@@ -3,9 +3,11 @@ import { FaBell, FaShoppingCart, FaUserCircle } from 'react-icons/fa';
 import { assets } from '../assets/assets';
 import { Link, NavLink } from 'react-router-dom';
 import ProfileModal from './ProfileModel';
+import CartModal from './CartModal';
 
 const Navbar = () => {
   const [showModal, setShowModal] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   return (
     <nav className="bg-white shadow-md px-4 flex items-center justify-between w-full sticky top-0 z-50">
@@ -53,13 +55,19 @@ const Navbar = () => {
 
       {/* Right - Icons */}
       <div className="flex items-center gap-4 text-xl text-gray-600">
-        <FaShoppingCart className="hover:text-orange-500 cursor-pointer" />
+        <FaShoppingCart
+            onClick={() => setIsCartOpen(true)}
+            className="hover:text-orange-500 cursor-pointer"
+        />
         <FaBell className="hover:text-orange-500 cursor-pointer" />
         <FaUserCircle
           className="hover:text-blue-600 cursor-pointer"
           onClick={() => setShowModal(true)}
         />
       </div>
+
+      {/* Cart Modal */}
+      <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
 
       {/* Profile Modal */}
       <ProfileModal show={showModal} onClose={() => setShowModal(false)} />

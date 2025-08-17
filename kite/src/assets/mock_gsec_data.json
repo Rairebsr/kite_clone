@@ -1,0 +1,44 @@
+[
+  {
+    "symbol": "GSEC2074",
+    "name": "7.09% GS 2074",
+    "yield": 7.09,
+    "endsOn": "Thu, 07 Aug 2025",
+    "price": 106.46
+  },
+  {
+    "symbol": "GSEC2032",
+    "name": "6.28% GS 2032",
+    "yield": 7.55,
+    "endsOn": "Thu, 07 Aug 2025",
+    "price": 105.23
+  },
+  {
+    "symbol": "GSEC2048",
+    "name": "7.09% GS 2074",
+    "yield": 6.29,
+    "endsOn": "Sat, 09 Aug 2025",
+    "price": 136.41
+  },
+  {
+    "symbol": "GSEC2057",
+    "name": "6.28% GS 2032",
+    "yield": 5.44,
+    "endsOn": "Thu, 21 Aug 2025",
+    "price": 201.23
+  },
+  {
+    "symbol": "GSEC2029",
+    "name": "7.09% GS 2074",
+    "yield": 7.89,
+    "endsOn": "Wed, 06 Aug 2025",
+    "price": 106.46
+  },
+  {
+    "symbol": "GSEC2062",
+    "name": "6.28% GS 2032",
+    "yield": 5.24,
+    "endsOn": "Tue, 12 Aug 2025",
+    "price": 115.13
+  }
+]

@@ -10,10 +10,14 @@ import Position from './pages/Position';
 import Bids from './pages/Bids';
 import Funds from './pages/Funds';
 import Sidebar from './components/Sidebar';
-import Layout from './components/Layout';
-
-
-
+// import Layout from './components/Layout';
+import OrdersTab from './pages/orders/OrdersTab';
+import GTTTab from './pages/orders/GTTTab';
+import BasketsTab from './pages/orders/BasketsTab';
+import SIPTab from './pages/orders/SIPTab';
+import AlertsTab from './pages/orders/AlertsTab';
+import BidsTab from './pages/Bids';
+import NewAlertModal from './pages/Alerts/NewAlertModal';
 
 const App = () => {
     const location = useLocation();
@@ -35,8 +39,18 @@ const App = () => {
         <Route path='/orders' element={<Orders />} />
         <Route path='/holdings' element={<Holdings />} />
         <Route path='/position' element={<Position />} />
-        <Route path='/bids' element={<Bids />} />
+        <Route path='/bids' element={<BidsTab />} />
         <Route path='/funds' element={<Funds />} />
+        {/* <Route path="alerts" element={<AlertsTab />} /> */}
+
+      <Route path="/orders" element={<Orders />}>
+              {/* <Route index element={<Navigate to="orders" replace />} /> */}
+              <Route path="orders" element={<OrdersTab />} />
+              <Route path="gtt" element={<GTTTab />} />
+              <Route path="baskets" element={<BasketsTab />} /> 
+              <Route path="sip" element={<SIPTab />} />
+              <Route path="alerts" element={<AlertsTab />} />
+            </Route>
       </Routes>
     </div>
   </div>

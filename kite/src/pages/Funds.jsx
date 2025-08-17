@@ -1,73 +1,94 @@
 import React, { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const Funds = () => {
   const [userId, setUserId] = useState('');
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [orders, setOrders] = useState([]);
   const [equity, setEquity] = useState({});
   const [commodity, setCommodity] = useState({});
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [selectedPaymentApp, setSelectedPaymentApp] = useState('RAZORPAY');
   const [selectedSegment,setSelectedSegment] = useState('EQUITY');
   const [amount, setAmount] = useState('');
 
   const handleWithdraw = async () => {
-  const withdrawAmt = parseFloat(amount);
-  if (isNaN(withdrawAmt) || withdrawAmt <= 0) {
-    toast.error("Please enter a valid amount.")
-    return;
-  }
+        const withdrawAmt = parseFloat(amount);
+        if (isNaN(withdrawAmt) || withdrawAmt <= 0) {
+          toast.error("Please enter a valid amount.")
+          return;
+        }
 
-  const currentSegment = selectedSegment === "EQUITY" ? equity : commodity;
+        const currentSegment = selectedSegment === "EQUITY" ? equity : commodity;
 
-if (withdrawAmt > currentSegment.availableMargin) {
-  toast.error("Insufficient balance to withdraw!")
-  return;
-}
-if (selectedSegment === "EQUITY") {
-  setEquity((prev) => ({
-    ...prev,
-    availableMargin: prev.availableMargin - withdrawAmt,
-    payout: prev.payout + withdrawAmt
-  }));
-} else {
-  setCommodity((prev) => ({
-    ...prev,
-    availableMargin: prev.availableMargin - withdrawAmt,
-    payout: prev.payout + withdrawAmt
-  }));
-}
+      if (withdrawAmt > currentSegment.availableMargin) {
+        toast.error("Insufficient balance to withdraw!")
+        return;
+      }
+      if (selectedSegment === "EQUITY") {
+        setEquity((prev) => ({
+          ...prev,
+          availableMargin: prev.availableMargin - withdrawAmt,
+          payout: prev.payout + withdrawAmt
+        }));
+      } else {
+        setCommodity((prev) => ({
+          ...prev,
+          availableMargin: prev.availableMargin - withdrawAmt,
+          payout: prev.payout + withdrawAmt
+        }));
+      }
 
+        try {
+          const res = await fetch(`http://localhost:4000/api/funds/withdraw`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ userId, amount: withdrawAmt, segment: selectedSegment })
+          });
 
-  try {
-    const res = await fetch(`http://localhost:4000/api/funds/withdraw`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({ userId, amount: withdrawAmt, segment: selectedSegment })
-    });
+          const result = await res.json();
+          if (res.ok) {
+            toast.success("Withdrawal successful!")
+            setEquity((prev) => ({
+              ...prev,
+              availableMargin: prev.availableMargin - withdrawAmt,
+              payout: prev.payout + withdrawAmt
+            }));
+          } else {
+            toast.error(result.message || "Withdrawal failed!")
+          }
+        } catch (err) {
+          console.error("Withdraw error:", err);
+        }
 
-    const result = await res.json();
-    if (res.ok) {
-      toast.success("Withdrawal successful!")
-      setEquity((prev) => ({
-        ...prev,
-        availableMargin: prev.availableMargin - withdrawAmt,
-        payout: prev.payout + withdrawAmt
-      }));
-    } else {
-      toast.error(result.message || "Withdrawal failed!")
-    }
-  } catch (err) {
-    console.error("Withdraw error:", err);
-  }
+        setShowWithdrawModal(false);
+        setAmount('');
+      };
 
-  setShowWithdrawModal(false);
-  setAmount('');
-};
+      useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        axios
+          .get('http://localhost:4000/api/auth/profile', {
+            headers: { Authorization: token },
+          })
+          .then((res) => {
+            setUser(res.data);
+            console.log(res.data);
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      }, []);
+
+      
 
 const handleAddFunds = async () => {
   const addAmt = parseFloat(amount);
@@ -135,6 +156,31 @@ const handleAddFunds = async () => {
 
   fetchFunds();
 }, [userId]);
+
+const launchRazorpay = () => {
+  const options = {
+    key: "RAZORPAY_KEY_ID", // Replace with your Razorpay key
+    amount: amount * 100, // Amount in paise
+    currency: "INR",
+    name: "Stock App",
+    description: "Add Funds",
+    handler: function (response) {
+      // send response.razorpay_payment_id to backend
+      toast.success("Payment Successful");
+      setShowAddFundsModal(false);
+      setAmount('');
+    },
+    prefill: {
+      contact: user.phone,
+    },
+    theme: {
+      color: "#0f9d58",
+    },
+  };
+
+  const rzp = new window.Razorpay(options);
+  rzp.open();
+};
 
 
   
@@ -233,92 +279,152 @@ const handleAddFunds = async () => {
       </div>
 
       {/* Add Funds Modal */}
-      {showAddFundsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <select value={selectedSegment} onChange={(e) => setSelectedSegment(e.target.value)}>
-              <option value="EQUITY">Equity</option>
-              <option value="COMMODITY">Commodity</option>
-            </select>
+      {/* Add Funds Modal */}
+{showAddFundsModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+      <h2 className="text-xl font-bold text-gray-800 mb-4">Add Funds</h2>
 
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Add Funds</h2>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="amount">
-                Amount (₹)
-              </label>
-              <input
-                type="number"
-                id="amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter amount"
-              />
-            </div>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => {
-                  setShowAddFundsModal(false);
-                  setAmount('');
-                }}
-                className="px-4 py-2 text-gray-700 font-medium rounded-md border border-gray-300 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddFunds}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md"
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Segment Selector */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">Select Segment</label>
+        <select
+          value={selectedSegment}
+          onChange={(e) => setSelectedSegment(e.target.value)}
+          className="w-full px-3 py-2 border rounded-md"
+        >
+          <option value="EQUITY">Equity</option>
+          <option value="COMMODITY">Commodity</option>
+        </select>
+      </div>
+
+      {/* Payment App */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">Choose Payment Method</label>
+        <select
+          value={selectedPaymentApp}
+          onChange={(e) => setSelectedPaymentApp(e.target.value)}
+          className="w-full px-3 py-2 border rounded-md"
+        >
+          <option value="RAZORPAY">Razorpay</option>
+          <option disabled>Paytm (Coming soon)</option>
+          <option disabled>PhonePe (Coming soon)</option>
+        </select>
+      </div>
+
+      {/* Bank Info Display */}
+      {user ? (
+  <div className="mb-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-md border">
+    <p><strong>Bank Verified</strong></p>
+    <p>Phone: {user.phone}</p>
+    <p>User ID: {user.userId}</p>
+  </div>
+) : (
+  <div className="mb-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-md border">
+    <p>Loading user details...</p>
+  </div>
+)}
+
+
+      {/* Amount */}
+      <div className="mb-4">
+        <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
+          Amount (₹)
+        </label>
+        <input
+          type="number"
+          id="amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="w-full px-3 py-2 border rounded-md"
+          placeholder="Enter amount"
+        />
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex justify-end space-x-3">
+        <button
+          onClick={() => {
+            setShowAddFundsModal(false);
+            setAmount('');
+          }}
+          className="px-4 py-2 border rounded-md hover:bg-gray-100"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleAddFunds}
+          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+        >
+          Make Payment
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Withdraw Modal */}
-      {showWithdrawModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <select value={selectedSegment} onChange={(e) => setSelectedSegment(e.target.value)}>
-              <option value="EQUITY">Equity</option>
-              <option value="COMMODITY">Commodity</option>
-            </select>
+{showWithdrawModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+      <h2 className="text-xl font-bold text-gray-800 mb-4">Withdraw Funds</h2>
 
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Withdraw Funds</h2>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="amount">
-                Amount (₹)
-              </label>
-              <input
-                type="number"
-                id="amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter amount"
-              />
-            </div>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => {
-                  setShowWithdrawModal(false);
-                  setAmount('');
-                }}
-                className="px-4 py-2 text-gray-700 font-medium rounded-md border border-gray-300 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleWithdraw}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md"
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Segment Selector */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">Select Segment</label>
+        <select
+          value={selectedSegment}
+          onChange={(e) => setSelectedSegment(e.target.value)}
+          className="w-full px-3 py-2 border rounded-md"
+        >
+          <option value="EQUITY">Equity</option>
+          <option value="COMMODITY">Commodity</option>
+        </select>
+      </div>
+
+      {/* Bank Info Display */}
+      <div className="mb-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-md border">
+        <p><strong>Bank Verified</strong></p>
+        <p>Phone: {user.phone}</p>
+        <p>User ID: {user.userId}</p>
+      </div>
+
+      {/* Amount */}
+      <div className="mb-4">
+        <label htmlFor="withdraw-amount" className="block text-sm font-medium text-gray-700 mb-1">
+          Amount to Withdraw (₹)
+        </label>
+        <input
+          type="number"
+          id="withdraw-amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="w-full px-3 py-2 border rounded-md"
+          placeholder="Enter amount"
+        />
+      </div>
+
+      <div className="flex justify-end space-x-3">
+        <button
+          onClick={() => {
+            setShowWithdrawModal(false);
+            setAmount('');
+          }}
+          className="px-4 py-2 border rounded-md hover:bg-gray-100"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleWithdraw}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+        >
+          Withdraw Funds
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

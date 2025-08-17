@@ -13,17 +13,9 @@ const orderSchema = new mongoose.Schema({
   validity: { type: String, enum: ['Day', 'Immediate', 'Minutes'], default: 'Day' },
   disclosedQty: { type: Number, default: 0 },
   timestamp: { type: Date, default: Date.now },
-  segment: {
-  type: String,
-  enum: ['EQUITY', 'COMMODITY'],
-  required: true
-},
-exchange: {
-  type: String,
-  enum: ['NSE', 'BSE', 'MCX'],
-  required: true
-}
-
+  segment: { type: String, enum: ['EQUITY', 'COMMODITY'], required: true},
+  exchange: {type: String, enum: ['NSE', 'BSE', 'MCX'], required: true},
+  basketName: { type: String, default: null }
 });
 
 export default mongoose.model('Orders', orderSchema);

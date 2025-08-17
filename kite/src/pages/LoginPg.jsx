@@ -45,6 +45,7 @@ const LoginPg = () => {
         if (res.status === 200) {
             toast.success('Login successful')
             localStorage.setItem('token', res.data.token);
+            // localStorage.setItem('userId', userId); 
             navigate('/dashboard')
         }
         } catch (err) {

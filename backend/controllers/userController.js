@@ -146,8 +146,13 @@ export const verifytotp = async (req, res) => {
     return res.status(400).json({ message: 'TOTP setup incomplete or user not found' });
   }
   console.log("User's secret from DB:", user.totpSecret);
-  console.log("Token received:", token);
 
+  console.log("Generated token on server:", speakeasy.totp({
+  secret: user.totpSecret,
+  encoding: 'base32'
+}));
+
+  
   const isVerified = speakeasy.totp.verify({
     secret: user.totpSecret,
     encoding: 'base32',
@@ -156,6 +161,8 @@ export const verifytotp = async (req, res) => {
   });
 
   if (!isVerified) {
+    console.log("True");
+    
     return res.status(400).json({ message: 'Invalid OTP' });
   }
   
@@ -180,5 +187,3 @@ export const updateprofile = async (req, res) => {
   });
   res.sendStatus(200);
 };
-
-
