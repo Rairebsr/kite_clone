@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import IPOList from "./BidsTab/IPOList";
 import GovtSecurities from "./BidsTab/GovtSecurities";
 import Auctions from "./BidsTab/Auctions";
-
+import CorporateActions from "./BidsTab/CorporateActions";
 const BidsTab = () => {
   const [activeTab, setActiveTab] = useState("IPO");
 
@@ -15,6 +15,8 @@ const BidsTab = () => {
         return <GovtSecurities />;
       case "Auctions":
         return <Auctions />;
+      case "CorporateActions":
+        return <CorporateActions />;
       default:
         return null;
     }
@@ -23,7 +25,7 @@ const BidsTab = () => {
   return (
     <div className="p-4">
       <div className="flex space-x-6 border-b pb-2 mb-4">
-        {["IPO", "Govt. securities", "Auctions"].map((tab) => (
+        {["IPO", "Govt. securities", "Auctions", "CorporateActions"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}

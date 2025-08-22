@@ -12,6 +12,7 @@ import router from './routes/alertsRoutes.js';
 import ipoRoutes from './routes/ipoRoutes.js';
 import Grouter from './routes/gsecRoutes.js';
 import brouter from "./routes/basket.js";
+import sipRoutes from "./routes/sipRoutes.js";
 //App config
 const app = express()
 const port = process.env.PORT || 4000
@@ -33,6 +34,7 @@ app.use('/api/alerts', router);
 app.use("/api/ipo", ipoRoutes);
 app.use("/api/gsec", Grouter);
 app.use("/api/baskets", brouter);
+app.use("/api/sips", sipRoutes);
 app.get('/',(req,res)=>{
     res.send("API working")
 })

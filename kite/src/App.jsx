@@ -44,13 +44,15 @@ const App = () => {
         {/* <Route path="alerts" element={<AlertsTab />} /> */}
 
       <Route path="/orders" element={<Orders />}>
-              {/* <Route index element={<Navigate to="orders" replace />} /> */}
-              <Route path="orders" element={<OrdersTab />} />
-              <Route path="gtt" element={<GTTTab />} />
-              <Route path="baskets" element={<BasketsTab />} /> 
-              <Route path="sip" element={<SIPTab />} />
-              <Route path="alerts" element={<AlertsTab />} />
-            </Route>
+  {/* 👇 This makes OrdersTab the default */}
+  <Route index element={<OrdersTab />} /> 
+
+  <Route path="orders" element={<OrdersTab />} />
+  <Route path="gtt" element={<GTTTab />} />
+  <Route path="baskets" element={<BasketsTab />} /> 
+  <Route path="sip" element={<SIPTab />} />
+  <Route path="alerts" element={<AlertsTab />} />
+</Route>
       </Routes>
     </div>
   </div>
