@@ -107,7 +107,7 @@ const NavBar = () => {
                         <ul className='space-y-4'>
 
                             <div className='grid grid-cols-2 gap-4'>
-                                <NavLink to='/signup' className='block py-2 px-4 hover:bg-gray-100 rounded' onClick={() => setMobileMenuOpen(false)}>
+                                <NavLink to='/signin' className='block py-2 px-4 hover:bg-gray-100 rounded' onClick={() => setMobileMenuOpen(false)}>
                                 SignUp
                             </NavLink>
                             <NavLink to='/about' className='block py-2 px-4 hover:bg-gray-100 rounded' onClick={() => setMobileMenuOpen(false)}>
