@@ -1,7 +1,10 @@
 import React from 'react'
 import { assets } from '../assets/assets'
+import { useNavigate } from 'react-router-dom'
+
 
 const Home = () => {
+  const navigate = useNavigate();
   return (
     <div>
         <div className='flex flex-col items-center justify-center h-screen text-center px-4'>
@@ -13,9 +16,12 @@ const Home = () => {
             Online platform to invest in stocks, derivatives, mutual funds, ETFs, bonds, and more.
           </p>
           
-          <button className='bg-blue-600 text-white px-6 py-3 rounded-xl text-lg hover:bg-blue-700 transition'>
-            Sign Up for free
-          </button>
+          <button 
+          onClick={() => navigate('/signin')}
+          className='bg-blue-600 text-white px-6 py-3 rounded-xl text-lg hover:bg-blue-700 transition'
+        >
+          Sign Up for free
+        </button>
         </div>
 
       <div className='flex flex-col md:flex-row items-center justify-between px-6 py-10 bg-white'>
