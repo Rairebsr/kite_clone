@@ -58,29 +58,35 @@ const Finalise = () => {
   };
 
   const handleContinue = async () => {
-    if (password.length < 8 || !/[!@#$%^&*]/.test(password)) {
-      alert('Password must be at least 8 characters and include a special character.');
-      return;
-    }
+  if (password.length < 8 || !/[!@#$%^&*]/.test(password)) {
+    alert('Password must be at least 8 characters and include a special character.');
+    return;
+  }
 
-    const token = localStorage.getItem('token');
-    try {
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/steps/finalize`,
-        { userId, password },
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-      toast.success('Account created login via kite')
-      
-    } catch (err) {
-      console.error('Error finalizing account:', err);
-      alert('Something went wrong!');
-    }
-  };
+  const token = localStorage.getItem('token');
+  try {
+    await axios.post(
+      `${import.meta.env.VITE_API_URL}/api/steps/finalize`,
+      { userId, password },
+      {
+        headers: {
+          Authorization: token,
+        },
+      }
+    );
+
+    toast.success('Account created! Redirecting to Kite...');
+
+    // ✅ Redirect to deployed Kite app
+    setTimeout(() => {
+      window.location.href = "https://kite-kitefrontend.vercel.app/";
+    }, 1500); // wait 1.5s so toast can show
+  } catch (err) {
+    console.error('Error finalizing account:', err);
+    alert('Something went wrong!');
+  }
+};
+
 
  return (
   <div className="flex justify-center items-center min-h-screen bg-gradient-to-br ">
