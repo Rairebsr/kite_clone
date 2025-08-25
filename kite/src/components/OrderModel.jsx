@@ -54,7 +54,7 @@ const handleBuyOrder = async () => {
   };
 
   try {
-    const res = await axios.post('http://localhost:4000/api/order/addorder', orderData, {
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/order/addorder`, orderData, {
       headers: {
         'Content-Type': 'application/json',
       },

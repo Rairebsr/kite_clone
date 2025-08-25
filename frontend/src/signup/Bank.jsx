@@ -19,7 +19,7 @@ const Bank = () => {
       
           try {
             const res = await axios.post(
-              'http://localhost:4000/api/steps/bank',
+              `${import.meta.env.VITE_API_URL}/api/steps/bank`,
               {
   ifsc, micr, accountNo, bankName, branch
 }

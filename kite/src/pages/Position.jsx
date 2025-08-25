@@ -28,7 +28,7 @@ const Positions = () => {
   const fetchPositions = async () => {
     setIsLoading(true);
     try {
-      const res = await axios.get(`http://localhost:4000/api/order/getposition/${userId}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/order/getposition/${userId}`);
       const enriched = res.data.map((pos) => {
         const price = pos.price;
         const fluctuation = price * (Math.random() * 0.1 - 0.05);

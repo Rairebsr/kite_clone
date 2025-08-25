@@ -14,7 +14,7 @@ const Pan = () => {
 
     try {
       const res = await axios.post(
-        'http://localhost:4000/api/steps/pan',
+        `${import.meta.env.VITE_API_URL}/api/steps/pan`,
         { pan },
         {
           headers: {

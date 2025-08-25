@@ -33,7 +33,7 @@ const GTTModal = ({ stock, closeModal }) => {
 
   const fetchHoldings = async () => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/order/getorder/${userId}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/order/getorder/${userId}`);
       setHoldings(res.data);
      
       
@@ -85,7 +85,7 @@ const handlePlaceOrder = async () => {
   };
 
   try {
-    const res = await axios.post('http://localhost:4000/api/gtt/add', gttOrder);
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/gtt/add`, gttOrder);
     toast.success("GTT order placed successfully");
     closeModal();
   } catch (error) {

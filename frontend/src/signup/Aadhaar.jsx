@@ -22,7 +22,7 @@ const Aadhaar = () => {
         
             try {
                 const res = await axios.post(
-                    'http://localhost:4000/api/steps/aadhaar',
+                    `${import.meta.env.VITE_API_URL}/api/steps/aadhaar`,
                     {},
                     {
                     headers: {

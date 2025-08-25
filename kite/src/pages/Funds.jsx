@@ -44,7 +44,7 @@ const Funds = () => {
       }
 
         try {
-          const res = await fetch(`http://localhost:4000/api/funds/withdraw`, {
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/funds/withdraw`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -76,7 +76,7 @@ const Funds = () => {
         const token = localStorage.getItem('token');
         if (!token) return;
         axios
-          .get('http://localhost:4000/api/auth/profile', {
+          .get(`${import.meta.env.VITE_API_URL}/api/auth/profile`, {
             headers: { Authorization: token },
           })
           .then((res) => {
@@ -98,7 +98,7 @@ const handleAddFunds = async () => {
   }
 
   try {
-    const res = await fetch("http://localhost:4000/api/funds/add", {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/funds/add`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -145,7 +145,7 @@ const handleAddFunds = async () => {
 
   const fetchFunds = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/funds/get/${userId}`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/funds/get/${userId}`);
       const data = await res.json();
       setEquity(data.equity);
       setCommodity(data.commodity);

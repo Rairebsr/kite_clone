@@ -55,7 +55,7 @@ const GsecApplyModal = ({ gsec, onClose }) => {
 
   const token = localStorage.getItem("token");
 
-  const res = await fetch("http://localhost:4000/api/gsec/apply", {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/gsec/apply`, {
   method: "POST",
   headers: {
   "Content-Type": "application/json",

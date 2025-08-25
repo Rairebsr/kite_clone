@@ -108,7 +108,7 @@ const NewAlertModal = ({ isOpen, onClose, onCreate }) => {
   };
 
   try {
-    const response = await axios.post("http://localhost:4000/api/alerts", alertData);
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/alerts`, alertData);
 if (response.data.success) {
   onCreate(response.data.alert); // ✅ real backend alert sent to AlertsTab
   onClose();

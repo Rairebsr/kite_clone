@@ -32,7 +32,7 @@ const Finalise = () => {
       newId = generateUserId();
 
       try {
-        const res = await axios.post('http://localhost:4000/api/steps/check-userid', {
+        const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/steps/check-userid`, {
           userId: newId,
         });
         if (!res.data.exists) {
@@ -66,7 +66,7 @@ const Finalise = () => {
     const token = localStorage.getItem('token');
     try {
       await axios.post(
-        'http://localhost:4000/api/steps/finalize',
+        `${import.meta.env.VITE_API_URL}/api/steps/finalize`,
         { userId, password },
         {
           headers: {

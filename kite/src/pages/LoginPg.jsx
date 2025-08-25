@@ -19,7 +19,7 @@ const LoginPg = () => {
 
     const handleLogin = async () => {
         try {
-        const res = await axios.post('http://localhost:4000/api/auth/login', {
+        const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
             userId,
             password,
         });
@@ -37,7 +37,7 @@ const LoginPg = () => {
 
     const handleOtpVerify = async () => {
         try {
-        const res = await axios.post('http://localhost:4000/api/auth/verify-totp', {
+        const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/verify-totp`, {
             userId,
             token:otp,
         });

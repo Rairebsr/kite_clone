@@ -22,7 +22,7 @@ const SIPsPage = () => {
 
   const fetchSIPs = async (uid) => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/sips/${uid}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/sips/${uid}`);
       setSips(res.data);
     } catch (err) {
       console.error("Error fetching SIPs:", err);
@@ -32,7 +32,7 @@ const SIPsPage = () => {
   const handleDelete = async (id) => {
     // if (!window.confirm("Delete this SIP?")) return;
     try {
-      await axios.delete(`http://localhost:4000/api/sips/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/sips/${id}`);
       setSips(sips.filter((s) => s._id !== id));
     } catch (err) {
       console.error("Error deleting SIP:", err);

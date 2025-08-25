@@ -49,7 +49,7 @@ const [orderState, setOrderState] = useState('B'); // or 'Sell'
     };
 
     try {
-      await fetch('http://localhost:4000/api/order/cart', {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/order/cart`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, item }),
@@ -62,7 +62,7 @@ const [orderState, setOrderState] = useState('B'); // or 'Sell'
 
   const updateCartItem = async (itemId, updates) => {
   try {
-    await fetch('http://localhost:4000/api/order/updatecart', {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/order/updatecart`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, itemId, updates }),
@@ -80,7 +80,7 @@ const [orderState, setOrderState] = useState('B'); // or 'Sell'
 
   const handleRemove = async (itemId) => {
   try {
-    await fetch(`http://localhost:4000/api/order/remove`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/order/remove`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, itemId }),
@@ -96,7 +96,7 @@ const [orderState, setOrderState] = useState('B'); // or 'Sell'
   const fetchCart = async () => {
   if (!userId) return;
   try {
-    const res = await fetch(`http://localhost:4000/api/order/getcart/${userId}`);
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/order/getcart/${userId}`);
     const data = await res.json();
     setCartItems(data.items || []);
   } catch (err) {
@@ -150,7 +150,7 @@ useEffect(() => {
             className="px-3 py-1 text-sm text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all"
             onClick={async () => {
               try {
-                await fetch('http://localhost:4000/api/order/clearcart', {
+                await fetch(`${import.meta.env.VITE_API_URL}/api/order/clearcart`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ userId }),
@@ -307,7 +307,7 @@ useEffect(() => {
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             onClick={async () => {
               try {
-                const response = await fetch('http://localhost:4000/api/order/placeall', {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/order/placeall`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ userId }), // Make sure userId is available

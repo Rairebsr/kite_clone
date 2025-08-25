@@ -44,7 +44,7 @@ useEffect(() => {
 
   const fetchOrders = async () => {
   try {
-    const res = await fetch(`http://localhost:4000/api/order/getorder/${userId}`);
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/order/getorder/${userId}`);
     const orders = await res.json();
     console.log("Fetched Orders:", orders);
 

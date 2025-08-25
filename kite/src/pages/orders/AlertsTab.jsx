@@ -23,7 +23,7 @@ useEffect(() => {
       setUserId(decoded.id); // state
       localStorage.setItem("userId", decoded.id); // also persist for create
 
-      const response = await axios.get(`http://localhost:4000/api/alerts/user/${decoded.id}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/alerts/user/${decoded.id}`);
 
       if (response.data.success) {
         const validAlerts = response.data.alerts.filter(
@@ -69,7 +69,7 @@ useEffect(() => {
   };
 
   try {
-    const res = await axios.post("http://localhost:4000/api/alerts", formatted);
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/alerts`, formatted);
     if (res.data.success) {
       setAlerts((prev) => [...prev, res.data.alert]);
     }

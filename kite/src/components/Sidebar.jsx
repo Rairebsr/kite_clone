@@ -63,7 +63,7 @@ useEffect(() => {
 
   const fetchHoldings = async () => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/order/getorder/${userId}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/order/getorder/${userId}`);
       setHoldings(res.data);
     } catch (error) {
       console.error("Error fetching holdings:", error);
@@ -83,7 +83,7 @@ const currentWatchlist = watchlists[selectedWatchlist] || { groups: {} };
 
   const syncWithServer = async (watchlists) => {
   try {
-     await axios.post(`http://localhost:4000/api/watchlist/save`, { userId,watchlists },{
+     await axios.post(`${import.meta.env.VITE_API_URL}/api/watchlist/save`, { userId,watchlists },{
           headers: {
             Authorization: 'application/json',
           },
@@ -227,7 +227,7 @@ const handleOrderClick = (stock, action) => {
   useEffect(() => {
   const fetchData = async () => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/watchlist/view`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/watchlist/view`, {
         params: { userId },
       });
 
@@ -339,7 +339,7 @@ useEffect(() => {
             setEditingWatchlist(null);
 
             if (userId) {
-              axios.post(`http://localhost:4000/api/watchlist/rename`, {
+              axios.post(`${import.meta.env.VITE_API_URL}/api/watchlist/rename`, {
                 userId,
                 oldName: wl,
                 newName: trimmed
@@ -387,7 +387,7 @@ useEffect(() => {
         setWatchlists(updated);
 
         if (userId) {
-          axios.post(`http://localhost:4000/api/watchlist/delete`, {
+          axios.post(`${import.meta.env.VITE_API_URL}/api/watchlist/delete`, {
             userId,
             watchlistName: wl
           });

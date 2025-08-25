@@ -10,7 +10,7 @@ const ProfileModal = ({ show, onClose }) => {
     if (show) {
       setIsLoading(true);
       axios
-        .get('http://localhost:4000/api/auth/profile', {
+        .get(`${import.meta.env.VITE_API_URL}/api/auth/profile`, {
           headers: { Authorization: token },
         })
         .then((res) => {
@@ -29,7 +29,7 @@ const ProfileModal = ({ show, onClose }) => {
   const handleUpdate = () => {
     setIsLoading(true);
     axios
-      .post('http://localhost:4000/api/auth/update-profile', {
+      .post(`${import.meta.env.VITE_API_URL}/api/auth/update-profile`, {
         profileDetails: user.profileDetails,
         panDetails: user.panDetails,
         bankDetails: user.bankDetails

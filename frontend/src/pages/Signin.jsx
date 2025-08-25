@@ -88,7 +88,7 @@ const Signin = () => {
                 <button
                     onClick={async () => {
                         try {
-                        const res = await axios.post('http://localhost:4000/api/auth/send-otp', { phone });
+                        const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/send-otp`, { phone });
                         const data = res.data;
 
                         if (data.alreadyExists) {
@@ -155,7 +155,7 @@ const Signin = () => {
                                 className="mt-6 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
                                 onClick={async () => {
                                 try {
-                                    const res = await axios.post('http://localhost:4000/api/auth/verify-otp', {
+                                    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/verify-otp`, {
                                     phone,
                                     otp,
                                     });

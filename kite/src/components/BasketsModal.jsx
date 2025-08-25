@@ -16,7 +16,7 @@ useEffect(() => {
   if (!basketName || !userId) return;
 
   axios
-    .get("http://localhost:4000/api/order/basketorders", {
+    .get(`${import.meta.env.VITE_API_URL}/api/order/basketorders`, {
       params: { userId, basketName },
     })
     .then((res) => setBasketOrders(res.data))
@@ -113,7 +113,7 @@ const BuyOrderModal = ({ closeModal, stock, basketName }) => {
 
     try {
       const res = await axios.post(
-        'http://localhost:4000/api/order/addorder',
+        `${import.meta.env.VITE_API_URL}/api/order/addorder`,
         orderData,
         {
           headers: { 'Content-Type': 'application/json' },

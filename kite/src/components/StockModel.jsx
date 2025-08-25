@@ -50,7 +50,7 @@ useEffect(() => {
 
   const fetchHoldings = async () => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/order/getorder/${userId}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/order/getorder/${userId}`);
       setHoldings(res.data);
     } catch (error) {
       console.error("Error fetching holdings:", error);

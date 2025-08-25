@@ -111,7 +111,7 @@ const handleSubmit = async () => {
       return;
     }
 
-    const response = await fetch('http://localhost:4000/api/ipo/apply', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ipo/apply`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -5,7 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import BasketsPopup from '../../components/BasketsModal';
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:4000/api/baskets"; // ✅ match backend port
+const API_BASE_URL = "/api/baskets"; // ✅ match backend port
 
 const BasketsPage = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -28,7 +28,7 @@ const BasketsPage = () => {
     try {
       const token = localStorage.getItem("token");
       const decoded = jwtDecode(token);   // ✅ extract userId
-      const res = await axios.get(`http://localhost:4000/api/baskets/${decoded.id}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/baskets/${decoded.id}`);
       setBaskets(res.data);
     } catch (err) {
       console.error("Error fetching baskets:", err.response?.data || err.message);
@@ -40,7 +40,7 @@ const BasketsPage = () => {
 
   useEffect(() => {
   if (userId) {
-    fetch(`${API_BASE_URL}/${userId}`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/baskets/${userId}`)
       .then((res) => res.json())
       .then((data) => setBaskets(data))   // 👈 store in state
       .catch((err) => console.error("Error fetching baskets:", err));
@@ -54,7 +54,7 @@ const BasketsPage = () => {
   }
 
   try {
-    const res = await fetch(`${API_BASE_URL}/create`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/baskets/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, name: basketName }),
@@ -109,7 +109,7 @@ const BasketsPage = () => {
 
     try {
       const res = await axios.get(
-        `http://localhost:4000/api/order/basketorders`,
+        `${import.meta.env.VITE_API_URL}/api/order/basketorders`,
         { params: { userId, basketName: currentBasket } } // ✅ filter by basketName
       );
       setBasketOrders(res.data);
@@ -183,7 +183,7 @@ const BasketsPage = () => {
         onClick={async (e) => {
           e.stopPropagation(); // Prevent card click
           try {
-            await axios.delete(`http://localhost:4000/api/baskets/${basket._id}`);
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/baskets/${basket._id}`);
             setBaskets((prev) => prev.filter((b) => b._id !== basket._id));
           } catch (err) {
             console.error("Delete failed:", err.response?.data || err.message);
