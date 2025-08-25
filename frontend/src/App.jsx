@@ -8,7 +8,7 @@ import Supports from './pages/Supports';
 import NavBar from './components/NavBar';
 import Footer from './components/Footer';
 import BrokerageCalculator from './components/BrokerageCalculator';
-import Signin from './pages/signin';
+import Signin from './pages/Signin';
 import Pan from './signup/Pan';
 import ProtectedRoute from './components/ProtectedRoute';
 import Finalise from './signup/Finalise';
