@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { FaBell, FaShoppingCart, FaUserCircle, FaBars, FaTimes } from 'react-icons/fa';
+import { FaBell, FaShoppingCart, FaUserCircle, FaTimes, FaEllipsisV, FaBars } from 'react-icons/fa';
 import { assets } from '../assets/assets';
 import { Link, NavLink } from 'react-router-dom';
 import ProfileModal from './ProfileModel';
 import CartModal from './CartModal';
 
-const Navbar = ({isSidebarOpen,setIsSidebarOpen}) => {
-  
+const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [showModal, setShowModal] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false);
@@ -48,16 +47,8 @@ const Navbar = ({isSidebarOpen,setIsSidebarOpen}) => {
         </ul>
       </div>
 
-      {/* Right - Icons + Mobile Nav Drawer Button */}
+      {/* Right - Icons */}
       <div className="flex items-center gap-4 text-xl text-gray-600">
-        {/* Right-side Drawer Menu (mobile only) */}
-        <button 
-          className="md:hidden text-xl"
-          onClick={() => setIsRightDrawerOpen(true)}
-        >
-          <FaBars />
-        </button>
-
         <FaShoppingCart
           onClick={() => setIsCartOpen(true)}
           className="hover:text-orange-500 cursor-pointer"
@@ -67,6 +58,14 @@ const Navbar = ({isSidebarOpen,setIsSidebarOpen}) => {
           className="hover:text-blue-600 cursor-pointer"
           onClick={() => setShowModal(true)}
         />
+
+        {/* Right-side Drawer Trigger (mobile kebab icon) */}
+        <button 
+          className="md:hidden text-xl"
+          onClick={() => setIsRightDrawerOpen(true)}
+        >
+          <FaEllipsisV />
+        </button>
       </div>
 
       {/* Cart Modal */}
@@ -108,7 +107,7 @@ const Navbar = ({isSidebarOpen,setIsSidebarOpen}) => {
         ></div>
       )}
 
-      {/* Backdrop */}
+      {/* Backdrop for Sidebar */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden"
