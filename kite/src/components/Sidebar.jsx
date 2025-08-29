@@ -279,10 +279,22 @@ useEffect(() => {
   return (
     
 <aside
-  className={`fixed lg:static top-[56px] left-0 h-[calc(100vh-56px)] w-[80%] sm:w-[280px]
- bg-white border-r border-gray-200 z-50 transform transition-transform duration-300
-  ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 flex flex-col`}
+  className={`fixed lg:static top-[56px] left-0 h-[calc(100vh-56px)]
+    w-full sm:w-[280px] bg-white border-r border-gray-200 z-50
+    transform transition-transform duration-300
+    ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 flex flex-col`}
 >
+      {/* Mobile Header */}
+  <div className="lg:hidden flex justify-between items-center px-4 py-3 border-b bg-gray-50">
+    <h2 className="text-base font-semibold">{currentWatchlistName}</h2>
+    <button
+      onClick={() => setIsSidebarOpen(false)}
+      className="text-gray-600 hover:text-gray-900 text-xl"
+    >
+      ✕
+    </button>
+  </div>
+
       {/* Search */}
       <div className="sticky px-4 py-4 top-0 bg-gray-50 z-10 pb-2 border-b">
         <div className="flex items-center border rounded px-2 py-1 mb-3 bg-white">
@@ -311,6 +323,23 @@ useEffect(() => {
           </button>
         </div>
 
+        {/* Mobile Watchlist Tabs */}
+  <div className="lg:hidden flex gap-2 overflow-x-auto px-3 py-2 border-b bg-white">
+    {Object.keys(watchlists).map((wl) => (
+      <button
+        key={wl}
+        onClick={() => setSelectedWatchlist(wl)}
+        className={`px-3 py-1 rounded-full text-sm ${
+          selectedWatchlist === wl
+            ? "bg-orange-600 text-white"
+            : "bg-gray-200 text-gray-700"
+        }`}
+      >
+        {wl}
+      </button>
+    ))}
+  </div>
+
         {searchTerm && (
           <ul className="border rounded bg-white max-h-32 overflow-y-auto shadow">
             {filteredStocks.map(stock => (
@@ -327,196 +356,337 @@ useEffect(() => {
         )}
       </div>
 
-      {/* Watchlist Groups */}
-      <div className="flex-1 overflow-y-auto px-4 py-2">
-        
-        {Object.keys(watchlists).map((wl) => (
-  <div key={wl} className="flex items-center justify-between mb-2 gap-1">
-    {editingWatchlist === wl ? (
-      <input
-        autoFocus
-        type="text"
-        value={newWatchlistName}
-        onChange={(e) => setNewWatchlistName(e.target.value)}
-        onBlur={() => {
-          const trimmed = newWatchlistName.trim();
-          if (trimmed && trimmed !== wl) {
-            const updated = { ...watchlists };
-            updated[trimmed] = updated[wl];
-            delete updated[wl];
-            setWatchlists(updated);
-            setSelectedWatchlist(trimmed);
-            setEditingWatchlist(null);
 
-            if (userId) {
-              axios.post(`${import.meta.env.VITE_API_URL}/api/watchlist/rename`, {
-                userId,
-                oldName: wl,
-                newName: trimmed
-              });
-              syncWithServer(updated);
+       {/* Watchlist Groups */}
+  <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-2 lg:hidden">
+    {Object.entries(currentWatchlist.groups).map(([groupName, stocks]) => (
+      <div
+        key={groupName}
+        className="mb-3 border rounded bg-white overflow-hidden"
+      >
+        {/* Mobile collapsible header */}
+        <button
+          onClick={() =>
+            setSelectedGroup(selectedGroup === groupName ? null : groupName)
+          }
+          className={`w-full flex justify-between items-center px-3 py-2 text-sm font-semibold ${
+            selectedGroup === groupName ? "bg-gray-100" : "bg-gray-50"
+          }`}
+        >
+          <span>{groupName}</span>
+          <span>{selectedGroup === groupName ? "−" : "+"}</span>
+        </button>
+
+        {/* Group stocks (shown only if open on mobile OR always visible on desktop) */}
+        <ul
+  className={`transition-all ${
+    selectedGroup === groupName ? "max-h-[500px]" : "max-h-0 lg:max-h-none"
+  } overflow-hidden`}
+>
+  {stocks.map((stock) => (
+    <li
+      key={stock.symbol}
+      className="relative group flex justify-between items-center px-3 py-2 border-b text-xs hover:bg-gray-50"
+    >
+      <div>
+        <div
+          className={`font-bold ${
+            stock.change >= 0 ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          {stock.name}
+        </div>
+        <div className="text-gray-500">{stock.symbol}</div>
+      </div>
+
+      <div className="text-right">
+        <div
+          className={`font-medium ${
+            stock.change >= 0 ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          ₹{stock.price}
+        </div>
+        <div
+          className={`text-xs ${
+            stock.change >= 0 ? "text-green-500" : "text-red-500"
+          }`}
+        >
+          {stock.change >= 0 ? "▲" : "▼"} {stock.change}%
+        </div>
+      </div>
+
+      {/* Hover Buttons */}
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 hidden group-hover:flex bg-white shadow rounded px-1 gap-1">
+        <button
+          onClick={() => handleOrderClick(stock, "B")}
+          className="p-1 text-green-600 hover:bg-green-100 rounded"
+          title="Buy"
+        >
+          B
+        </button>
+        <button
+          onClick={() => handleOrderClick(stock, "S")}
+          className="p-1 text-red-600 hover:bg-red-100 rounded"
+          title="Sell"
+        >
+          S
+        </button>
+        <button
+          className="ml-2 text-blue-500 hover:text-blue-700"
+          title="Chart"
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedChartStock(stock);
+            setShowChartModal(true);
+          }}
+        >
+          <FaChartLine size={14} />
+        </button>
+        <button
+          className="p-1 text-purple-600 hover:bg-purple-100 rounded"
+          title="Depth"
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowDepth(true);
+          }}
+        >
+          <BsGraphUp size={12} />
+        </button>
+        <button
+          className="p-1 text-gray-600 hover:bg-gray-100 rounded"
+          title="Delete"
+          onClick={(e) => {
+            e.stopPropagation();
+            setStockToDelete({
+              ...stock,
+              watchlistName: currentWatchlistName,
+              groupName: groupName,
+            });
+            setShowDeleteModal(true);
+          }}
+        >
+          <FaTrash size={12} />
+        </button>
+      </div>
+    </li>
+  ))}
+  {stocks.length === 0 && (
+    <li className="text-xs text-gray-400 py-2 text-center">
+      No stocks in this group
+    </li>
+  )}
+</ul>
+
+      </div>
+    ))}
+  </div>
+
+      {/* 💻 Desktop: Expanded Groups + Watchlists */}
+<div className="hidden lg:block flex-1 overflow-y-auto px-4 py-2">
+  {/* Only show the current selected watchlist */}
+  {selectedWatchlist && (
+    <div className="flex items-center justify-between mb-2 gap-1">
+      {editingWatchlist === selectedWatchlist ? (
+        <input
+          autoFocus
+          type="text"
+          value={newWatchlistName}
+          onChange={(e) => setNewWatchlistName(e.target.value)}
+          onBlur={() => {
+            const trimmed = newWatchlistName.trim();
+            if (trimmed && trimmed !== selectedWatchlist) {
+              const updated = { ...watchlists };
+              updated[trimmed] = updated[selectedWatchlist];
+              delete updated[selectedWatchlist];
+              setWatchlists(updated);
+              setSelectedWatchlist(trimmed);
+              setEditingWatchlist(null);
+
+              if (userId) {
+                axios.post(`${import.meta.env.VITE_API_URL}/api/watchlist/rename`, {
+                  userId,
+                  oldName: selectedWatchlist,
+                  newName: trimmed,
+                });
+                syncWithServer(updated);
+              }
+            } else {
+              setEditingWatchlist(null);
             }
-          } else {
-            setEditingWatchlist(null);
+          }}
+          onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
+          className="text-sm border border-gray-300 rounded px-2 py-1 flex-1"
+        />
+      ) : (
+        <div
+          onClick={() => setSelectedWatchlist(selectedWatchlist)}
+          onDoubleClick={() => {
+            setEditingWatchlist(selectedWatchlist);
+            setNewWatchlistName(selectedWatchlist);
+          }}
+          className={`text-sm cursor-pointer flex-1 truncate ${
+            selectedWatchlist ? "font-bold text-blue-600" : "text-gray-800"
+          }`}
+          title="Double-click to rename"
+        >
+          {selectedWatchlist}
+        </div>
+      )}
+
+      {/* Delete Watchlist */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          const confirmed = window.confirm(
+            `Delete "${selectedWatchlist}"?`
+          );
+          if (!confirmed) return;
+
+          const updated = { ...watchlists };
+          delete updated[selectedWatchlist];
+
+          const keys = Object.keys(updated);
+          const fallback = keys.length ? keys[0] : "";
+          setSelectedWatchlist(fallback);
+          setWatchlists(updated);
+
+          if (userId) {
+            axios.post(`${import.meta.env.VITE_API_URL}/api/watchlist/delete`, {
+              userId,
+              watchlistName: selectedWatchlist,
+            });
+            syncWithServer(updated);
           }
         }}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') e.target.blur();
-        }}
-        className="text-sm border border-gray-300 rounded px-2 py-1 flex-1"
-      />
-    ) : (
-      <div
-        onClick={() => setSelectedWatchlist(wl)}
-        onDoubleClick={() => {
-          setEditingWatchlist(wl);
-          setNewWatchlistName(wl);
-        }}
-        className={`text-sm cursor-pointer flex-1 truncate ${
-          selectedWatchlist === wl ? 'font-bold text-blue-600' : 'text-gray-800'
-        }`}
-        title="Double-click to rename"
+        className="text-xs text-red-500 hover:text-red-700 px-2"
+        title="Delete Watchlist"
       >
-        {wl}
-      </div>
-    )}
+        ✕
+      </button>
+    </div>
+  )}
 
-    {/* Delete Button */}
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        const confirmed = window.confirm(`Delete "${wl}"?`);
-        if (!confirmed) return;
-
-        const updated = { ...watchlists };
-        delete updated[wl];
-
-        const keys = Object.keys(updated);
-        const fallback = keys.length ? keys[0] : '';
-        setSelectedWatchlist(fallback);
-        setWatchlists(updated);
-
-        if (userId) {
-          axios.post(`${import.meta.env.VITE_API_URL}/api/watchlist/delete`, {
-            userId,
-            watchlistName: wl
-          });
-          syncWithServer(updated);
-        }
-      }}
-      className="text-xs text-red-500 hover:text-red-700 px-2"
-      title="Delete Watchlist"
-    >
-      ✕
-    </button>
-  </div>
-))}
-
-
-        {Object.entries(currentWatchlist.groups).map(([groupName, stocks]) => (
-          <div 
-            key={groupName} 
-            className={`mb-4 border rounded p-2 bg-white ${
-              selectedGroup === groupName ? 'border-gray-300' : ''
+      {/* Desktop groups */}
+      {Object.entries(currentWatchlist.groups).map(([groupName, stocks]) => (
+        <div
+          key={groupName}
+          className={`mb-4 border rounded p-2 bg-white ${
+            selectedGroup === groupName ? "border-gray-300" : ""
+          }`}
+          onClick={() => setSelectedGroup(groupName)}
+        >
+          <h4
+            className={`text-sm font-semibold cursor-pointer hover:text-orange-600 ${
+              selectedGroup === groupName
+                ? "text-gray-400"
+                : "text-gray-500"
             }`}
-            onClick={() => setSelectedGroup(groupName)}
           >
-            <h4
-              className={`text-sm font-semibold cursor-pointer hover:text-orange-600 ${
-                selectedGroup === groupName ? 'text-gray-400' : 'text-gray-500'
-              }`}
-            >
-              {groupName}
-              
-            </h4>
-            <ul className="mt-1">
-              {stocks.map((stock) => (
-                <li 
-                  key={stock.symbol} 
-                  className="text-xs py-2 border-b flex justify-between items-center group relative hover:bg-gray-50"
-                >
-                  <div className="flex-1">
-                    <div className={`font-bold ${stock.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>{stock.name}</div>
-                    
+            {groupName}
+          </h4>
+          <ul className={`transition-all ${
+    selectedGroup === groupName ? "max-h-[500px]" : "max-h-0 lg:max-h-none"
+  } overflow-hidden`}>
+            {stocks.map((stock) => (
+              <li
+                key={stock.symbol}
+                className="text-xs py-2 border-b flex justify-between items-center group relative hover:bg-gray-50"
+              >
+                <div className="flex-1">
+                  <div
+                    className={`font-bold ${
+                      stock.change >= 0 ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {stock.name}
                   </div>
-                  <div className="text-right">
-                    <div className={`font-medium ${stock.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      ₹{stock.price}
-                    </div>
-                    <div className={`text-[15px] ${stock.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {stock.change >= 0 ? '▲' : '▼'} {stock.change}%
-                    </div>
+                </div>
+                <div className="text-right">
+                  <div
+                    className={`font-medium ${
+                      stock.change >= 0 ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    ₹{stock.price}
                   </div>
-                  
-                  {/* Hover buttons */}
-                  <div className="absolute flex right-0 top-1/2 transform -translate-y-1/2 hidden group-hover:flex bg-white shadow rounded px-1 gap-1">
-                    <button
-                      onClick={() => handleOrderClick(stock, 'B')}
-                      className="p-1 text-green-600 hover:bg-green-100 rounded"
-                      title="Buy"
-                    >
-                      B
-                    </button>
+                  <div
+                    className={`text-[15px] ${
+                      stock.change >= 0 ? "text-green-500" : "text-red-500"
+                    }`}
+                  >
+                    {stock.change >= 0 ? "▲" : "▼"} {stock.change}%
+                  </div>
+                </div>
 
-                    <button
-                      onClick={() => handleOrderClick(stock, 'S')}
-                      className="p-1 text-red-600 hover:bg-red-100 rounded"
-                      title="Sell"
-                    >
-                      S
-                    </button>
-
-                    <button
+                {/* Hover Buttons */}
+                <div className="absolute flex right-0 top-1/2 transform -translate-y-1/2 hidden group-hover:flex bg-white shadow rounded px-1 gap-1">
+                  <button
+                    onClick={() => handleOrderClick(stock, "B")}
+                    className="p-1 text-green-600 hover:bg-green-100 rounded"
+                    title="Buy"
+                  >
+                    B
+                  </button>
+                  <button
+                    onClick={() => handleOrderClick(stock, "S")}
+                    className="p-1 text-red-600 hover:bg-red-100 rounded"
+                    title="Sell"
+                  >
+                    S
+                  </button>
+                  <button
                     className="ml-2 text-blue-500 hover:text-blue-700"
                     title="Chart"
                     onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedChartStock(stock);
-                        setShowChartModal(true);
+                      e.stopPropagation();
+                      setSelectedChartStock(stock);
+                      setShowChartModal(true);
                     }}
-                    >
+                  >
                     <FaChartLine size={14} />
-                    </button>
-                    <button 
-                      className="p-1 text-purple-600 hover:bg-purple-100 rounded"
-                      title="Depth"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowDepth(true);
-                      }}
-                    >
-                      <BsGraphUp size={12} />
-                    </button>
-                    <button 
-                      className="p-1 text-gray-600 hover:bg-gray-100 rounded"
-                      title="Delete"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setStockToDelete({
-                          ...stock,
-                          watchlistName: currentWatchlistName,
-                          groupName: groupName,
-                        });
-                        setShowDeleteModal(true);
-                      }}
-                    >
-                      <FaTrash size={12} />
-                    </button>
-
-                  </div>
-                </li>
-              ))}
-              {stocks.length === 0 && (
-                <li className="text-xs text-gray-400 py-2 text-center">No stocks in this group</li>
-              )}
-            </ul>
-          </div>
-        ))}
-      </div>
+                  </button>
+                  <button
+                    className="p-1 text-purple-600 hover:bg-purple-100 rounded"
+                    title="Depth"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowDepth(true);
+                    }}
+                  >
+                    <BsGraphUp size={12} />
+                  </button>
+                  <button
+                    className="p-1 text-gray-600 hover:bg-gray-100 rounded"
+                    title="Delete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setStockToDelete({
+                        ...stock,
+                        watchlistName: currentWatchlistName,
+                        groupName: groupName,
+                      });
+                      setShowDeleteModal(true);
+                    }}
+                  >
+                    <FaTrash size={12} />
+                  </button>
+                </div>
+              </li>
+            ))}
+            {stocks.length === 0 && (
+              <li className="text-xs text-gray-400 py-2 text-center">
+                No stocks in this group
+              </li>
+            )}
+          </ul>
+        </div>
+      ))}
+    </div>
 
       {/* Footer */}
       <div className="border-t p-3 bg-white">
-        <div className="flex justify-between items-center mb-2">
+        <div className="hidden lg:flex  justify-between items-center mb-2">
           <button
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
             disabled={currentPage === 1}
@@ -539,36 +709,38 @@ useEffect(() => {
         </div>
 
         {showGroupInput && (
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder={addingType === 'watchlist' ? 'Watchlist Name' : 'Group Name'}
-              className="flex-1 border rounded px-2 py-1 text-sm"
-              value={addingType === 'watchlist' ? newWatchlist : newGroupName}
-              onChange={(e) => {
-                addingType === 'watchlist'
-                  ? setNewWatchlist(e.target.value)
-                  : setNewGroupName(e.target.value);
-              }}
-            />
-            <button
-              onClick={addingType === 'watchlist' ? createNewWatchlist : createNewGroup}
-              className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-            >
-              Add
-            </button>
-            <button
-              onClick={() => {
-                setShowGroupInput(false);
-                setNewGroupName('');
-                setAddingType('');
-              }}
-              className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-300"
-            >
-              Cancel
-            </button>
-          </div>
-        )}
+  <div className="flex flex-col sm:flex-row gap-2 w-full">
+    <input
+      type="text"
+      placeholder={addingType === 'watchlist' ? 'Watchlist Name' : 'Group Name'}
+      className="flex-1 border rounded px-2 py-1 text-sm w-full"
+      value={addingType === 'watchlist' ? newWatchlist : newGroupName}
+      onChange={(e) => {
+        addingType === 'watchlist'
+          ? setNewWatchlist(e.target.value)
+          : setNewGroupName(e.target.value);
+      }}
+    />
+    <div className="flex gap-2">
+      <button
+        onClick={addingType === 'watchlist' ? createNewWatchlist : createNewGroup}
+        className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 w-full sm:w-auto"
+      >
+        Add
+      </button>
+      <button
+        onClick={() => {
+          setShowGroupInput(false);
+          setNewGroupName('');
+          setAddingType('');
+        }}
+        className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-300 w-full sm:w-auto"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
 
         {!showGroupInput && (
           <button
