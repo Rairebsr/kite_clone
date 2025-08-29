@@ -18,6 +18,7 @@ import SIPTab from './pages/orders/SIPTab';
 import AlertsTab from './pages/orders/AlertsTab';
 import BidsTab from './pages/Bids';
 import NewAlertModal from './pages/Alerts/NewAlertModal';
+import { useState } from 'react';
 
 const App = () => {
     const location = useLocation();
