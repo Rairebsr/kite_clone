@@ -7,21 +7,22 @@ import { toast } from 'react-toastify';
 
 const BasketsPopup = ({ searchTerm, basketName }) => {
   const [selectedStock, setSelectedStock] = useState(null);
-    const [basketOrders, setBasketOrders] = useState([]);
+  const [basketOrders, setBasketOrders] = useState([]);
 
-    const token = localStorage.getItem('token');
-const decoded = token ? jwtDecode(token) : null;
-const userId = decoded?.id;
-useEffect(() => {
-  if (!basketName || !userId) return;
+  const token = localStorage.getItem('token');
+  const decoded = token ? jwtDecode(token) : null;
+  const userId = decoded?.id;
 
-  axios
-    .get(`${import.meta.env.VITE_API_URL}/api/order/basketorders`, {
-      params: { userId, basketName },
-    })
-    .then((res) => setBasketOrders(res.data))
-    .catch((err) => console.error("Failed to fetch basket orders:", err));
-}, [basketName, userId]);
+  useEffect(() => {
+    if (!basketName || !userId) return;
+
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/api/order/basketorders`, {
+        params: { userId, basketName },
+      })
+      .then((res) => setBasketOrders(res.data))
+      .catch((err) => console.error("Failed to fetch basket orders:", err));
+  }, [basketName, userId]);
 
   const filteredStocks = stockData.filter(
     (stock) =>
@@ -35,19 +36,19 @@ useEffect(() => {
         {filteredStocks.map((stock, index) => (
           <li
             key={index}
-            className="flex justify-between px-4 py-2 hover:bg-gray-100 cursor-pointer"
-            onClick={() => setSelectedStock(stock)} // ✅ open modal
+            className="flex flex-col sm:flex-row sm:justify-between sm:items-center px-4 py-2 hover:bg-gray-100 cursor-pointer gap-1 sm:gap-0"
+            onClick={() => setSelectedStock(stock)}
           >
-            <span>{stock.symbol}</span>
-            <span className="text-gray-500">{stock.name}</span>
-            <span className="bg-red-100 text-red-600 text-xs px-2 rounded">
+            <div className="font-medium">{stock.symbol}</div>
+            <div className="text-gray-500 text-sm">{stock.name}</div>
+            <span className="self-start sm:self-center bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded">
               NSE
             </span>
           </li>
         ))}
       </ul>
 
-      {/* ✅ Show BuyOrderModal inside same file */}
+      {/* ✅ BuyOrderModal */}
       {selectedStock && (
         <BuyOrderModal
           stock={selectedStock}
@@ -60,7 +61,7 @@ useEffect(() => {
 };
 
 // ---------------------------
-// BuyOrderModal merged here
+// Responsive BuyOrderModal
 // ---------------------------
 const BuyOrderModal = ({ closeModal, stock, basketName }) => {
   const [activeTab, setActiveTab] = useState('Regular');
@@ -81,160 +82,60 @@ const BuyOrderModal = ({ closeModal, stock, basketName }) => {
   const decoded = token ? jwtDecode(token) : null;
   const userId = decoded?.id;
 
-  useEffect(() => {
-    console.log(stock);
-  }, [stock]);
-
   const handleBuyOrder = async () => {
-  const orderData = {
-    userId,
-    stockSymbol: stock.symbol,
-    stockName: stock.name,
-    price,
-    quantity: qty,
-    stopLoss: activeTab === 'Cover' ? stopLossTrigger : null,
-    orderType:
-      document.querySelector('input[name="orderType"]:checked')?.nextSibling
-        ?.textContent?.trim() || 'Market',
-    productType:
-      document.querySelector('input[name="type"]:checked')?.nextSibling
-        ?.textContent?.trim() || 'Intraday',
-    tabType: activeTab,
-    validity:
-      document.querySelector('input[name="validity"]:checked')?.nextSibling
-        ?.textContent?.trim() || 'Day',
-    disclosedQty,
-    val: 'Buy',
-    timestamp: new Date().toISOString(),
-    segment,
-    exchange: segment === 'EQUITY' ? 'NSE' : 'MCX',
-    basketName: basketName, // ✅ add basket name here
-};
+    const orderData = {
+      userId,
+      stockSymbol: stock.symbol,
+      stockName: stock.name,
+      price,
+      quantity: qty,
+      stopLoss: activeTab === 'Cover' ? stopLossTrigger : null,
+      orderType:
+        document.querySelector('input[name="orderType"]:checked')?.nextSibling
+          ?.textContent?.trim() || 'Market',
+      productType:
+        document.querySelector('input[name="type"]:checked')?.nextSibling
+          ?.textContent?.trim() || 'Intraday',
+      tabType: activeTab,
+      validity:
+        document.querySelector('input[name="validity"]:checked')?.nextSibling
+          ?.textContent?.trim() || 'Day',
+      disclosedQty,
+      val: 'Buy',
+      timestamp: new Date().toISOString(),
+      segment,
+      exchange: segment === 'EQUITY' ? 'NSE' : 'MCX',
+      basketName: basketName,
+    };
 
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/order/addorder`,
         orderData,
-        {
-          headers: { 'Content-Type': 'application/json' },
-        }
+        { headers: { 'Content-Type': 'application/json' } }
       );
       toast.success(res.data.message || 'Order placed');
       closeModal();
     } catch (err) {
-      const errorMsg = err?.response?.data?.message || 'Order failed';
-      toast.error(errorMsg);
+      toast.error(err?.response?.data?.message || 'Order failed');
       console.error('Order failed', err);
     }
   };
 
   const tabs = ['Quick', 'Regular', 'Iceberg', 'Cover'];
 
-  const renderTabs = () => (
-    <div className="flex gap-4 border-b mb-4">
-      {tabs.map((tab) => (
-        <button
-          key={tab}
-          onClick={() => setActiveTab(tab)}
-          className={`pb-2 font-medium text-sm ${
-            activeTab === tab
-              ? 'border-b-2 border-blue-500 text-blue-600'
-              : 'text-gray-500'
-          }`}
-        >
-          {tab}
-        </button>
-      ))}
-    </div>
-  );
-
-  const renderCommonFields = () => (
-    <div className="grid grid-cols-3 gap-4 mb-4">
-      <div>
-        <label className="text-sm font-medium">Qty.</label>
-        <input
-          type="number"
-          value={qty}
-          onChange={(e) => setQty(Number(e.target.value))}
-          className="w-full border px-2 py-1 rounded"
-        />
-      </div>
-      <div>
-        <label className="text-sm font-medium">Price</label>
-        <input
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(Number(e.target.value))}
-          className="w-full border px-2 py-1 rounded"
-        />
-      </div>
-      <div>
-        <label className="text-sm font-medium">Trigger Price</label>
-        <input
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(Number(e.target.value))}
-          className="w-full border px-2 py-1 rounded"
-        />
-      </div>
-      {activeTab === 'Cover' && (
-        <div>
-          <label className="text-sm font-medium">Stoploss trigger</label>
-          <input
-            type="number"
-            defaultValue={stopLossTrigger}
-            className="w-full border px-2 py-1 rounded"
-          />
-        </div>
-      )}
-      {activeTab === 'Iceberg' && (
-        <div>
-          <label className="text-sm font-medium">Number of legs</label>
-          <input
-            type="number"
-            defaultValue={2}
-            className="w-full border px-2 py-1 rounded"
-          />
-        </div>
-      )}
-    </div>
-  );
-
-  const renderAdvancedFields = () => (
-    <div className="grid grid-cols-2 gap-4 mt-4">
-      <div>
-        <label className="text-sm font-medium">Validity</label>
-        <div className="flex gap-2 mt-1">
-          <label>
-            <input type="radio" name="validity" defaultChecked /> Day
-          </label>
-          <label>
-            <input type="radio" name="validity" /> Immediate
-          </label>
-          <label>
-            <input type="radio" name="validity" /> Minutes
-          </label>
-        </div>
-      </div>
-      <div>
-        <label className="text-sm font-medium">Disclosed qty.</label>
-        <input
-          type="number"
-          defaultValue={disclosedQty}
-          className="w-full border px-2 py-1 rounded"
-        />
-      </div>
-    </div>
-  );
-
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex justify-center items-center">
-      <div className="max-w-lg w-full bg-white rounded shadow-md p-4">
-        <div className={`${bgColor} text-white p-2 flex justify-between items-center`}>
-          <span>{stock.name}</span>
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex justify-center items-center p-2">
+      <div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl bg-white rounded shadow-md p-4 overflow-y-auto max-h-[90vh]">
+        
+        {/* Header */}
+        <div className={`${bgColor} text-white p-3 rounded flex justify-between items-center`}>
+          <span className="font-semibold">{stock.name}</span>
+          <button onClick={closeModal} className="text-white text-lg">✕</button>
         </div>
 
-        <div className="flex items-center justify-between mb-4">
+        {/* Stock Info */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between my-4 gap-2">
           <div>
             <h2 className={`font-bold ${textColor} text-md`}>{stock.symbol}</h2>
             <div className="text-sm text-gray-600">
@@ -243,10 +144,25 @@ const BuyOrderModal = ({ closeModal, stock, basketName }) => {
           </div>
         </div>
 
-        {renderTabs()}
+        {/* Tabs */}
+        <div className="flex gap-4 border-b mb-4 overflow-x-auto text-sm">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-2 whitespace-nowrap ${
+                activeTab === tab
+                  ? 'border-b-2 border-blue-500 text-blue-600'
+                  : 'text-gray-500'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
 
         {/* Segment */}
-        <div className="flex gap-4 mb-4">
+        <div className="flex gap-2 mb-4 flex-wrap">
           <label className="flex items-center cursor-pointer">
             <input
               type="radio"
@@ -277,7 +193,7 @@ const BuyOrderModal = ({ closeModal, stock, basketName }) => {
         </div>
 
         {/* Product Type */}
-        <div className="flex gap-4 mb-4">
+        <div className="flex gap-2 mb-4 flex-wrap">
           <label className="flex items-center cursor-pointer">
             <input type="radio" name="type" defaultChecked className="hidden peer" />
             <span className="px-3 py-1 rounded border border-gray-300 peer-checked:bg-blue-600 peer-checked:text-white">
@@ -294,23 +210,45 @@ const BuyOrderModal = ({ closeModal, stock, basketName }) => {
         </div>
 
         {/* Order Type */}
-        <div className="flex gap-4 mb-4">
-          <label>
-            <input type="radio" name="orderType" defaultChecked /> Market
-          </label>
-          <label>
-            <input type="radio" name="orderType" /> Limit
-          </label>
-          <label>
-            <input type="radio" name="orderType" /> SL
-          </label>
-          <label>
-            <input type="radio" name="orderType" /> SL-M
-          </label>
+        <div className="flex flex-wrap gap-3 mb-4 text-sm">
+          <label><input type="radio" name="orderType" defaultChecked /> Market</label>
+          <label><input type="radio" name="orderType" /> Limit</label>
+          <label><input type="radio" name="orderType" /> SL</label>
+          <label><input type="radio" name="orderType" /> SL-M</label>
         </div>
 
-        {renderCommonFields()}
+        {/* Qty, Price, Trigger */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label className="text-sm font-medium">Qty.</label>
+            <input
+              type="number"
+              value={qty}
+              onChange={(e) => setQty(Number(e.target.value))}
+              className="w-full border px-2 py-1 rounded"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Price</label>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(Number(e.target.value))}
+              className="w-full border px-2 py-1 rounded"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Trigger Price</label>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(Number(e.target.value))}
+              className="w-full border px-2 py-1 rounded"
+            />
+          </div>
+        </div>
 
+        {/* Advanced Toggle */}
         <button
           className={`${textColor} text-sm font-medium flex items-center gap-1`}
           onClick={() => setShowAdvanced(!showAdvanced)}
@@ -318,9 +256,29 @@ const BuyOrderModal = ({ closeModal, stock, basketName }) => {
           Advanced {showAdvanced ? <FaChevronUp /> : <FaChevronDown />}
         </button>
 
-        {showAdvanced && renderAdvancedFields()}
+        {showAdvanced && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label className="text-sm font-medium">Validity</label>
+              <div className="flex gap-2 mt-1 flex-wrap text-sm">
+                <label><input type="radio" name="validity" defaultChecked /> Day</label>
+                <label><input type="radio" name="validity" /> Immediate</label>
+                <label><input type="radio" name="validity" /> Minutes</label>
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium">Disclosed qty.</label>
+              <input
+                type="number"
+                defaultValue={disclosedQty}
+                className="w-full border px-2 py-1 rounded"
+              />
+            </div>
+          </div>
+        )}
 
-        <div className="flex items-center justify-between mt-6 text-sm text-gray-600">
+        {/* Cost Info */}
+        <div className="flex flex-col sm:flex-row sm:justify-between mt-6 text-sm text-gray-600 gap-2">
           <div>
             Required: <span className={`${textColor} font-medium`}>₹{estimatedCost}</span> +0.63
           </div>
@@ -328,14 +286,13 @@ const BuyOrderModal = ({ closeModal, stock, basketName }) => {
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-4 mt-4">
+        <div className="flex flex-col sm:flex-row gap-3 mt-6">
           <button
             className={`flex-1 ${bgColor} text-white py-2 rounded ${hoverBgColor}`}
             onClick={handleBuyOrder}
           >
             Buy
           </button>
-
           <button
             onClick={closeModal}
             className="flex-1 border border-gray-300 py-2 rounded hover:bg-gray-100"
