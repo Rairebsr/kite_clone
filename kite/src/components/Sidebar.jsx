@@ -13,7 +13,7 @@ import { userContext } from '../context/userContext';
 
 
 
-const Sidebar = () => {
+const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [watchlists, setWatchlists] = useState({
     'Watchlist 1': {
@@ -269,10 +269,20 @@ useEffect(() => {
 }, [currentPage, watchlists]);
 
 
+{isSidebarOpen && (
+  <div 
+    className="fixed inset-0 bg-black bg-opacity-40 lg:hidden z-30"
+    onClick={() => setIsSidebarOpen(false)}
+  />
+)}
 
   return (
     
-    <aside className="w-[380px] bg-white border-r border-gray-200 h-[calc(100vh-56px)] sticky top-[50px] flex flex-col">
+<aside
+  className={`fixed lg:static top-[56px] left-0 h-[calc(100vh-56px)] w-[80%] sm:w-[280px]
+ bg-white border-r border-gray-200 z-40 transform transition-transform duration-300
+  ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 flex flex-col`}
+>
       {/* Search */}
       <div className="sticky px-4 py-4 top-0 bg-gray-50 z-10 pb-2 border-b">
         <div className="flex items-center border rounded px-2 py-1 mb-3 bg-white">

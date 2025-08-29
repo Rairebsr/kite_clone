@@ -27,10 +27,10 @@ const App = () => {
   return (
     <div>
   <ToastContainer />
-  {!shouldHideLayout && <Navbar />}
+  {!shouldHideLayout && <Navbar setIsSidebarOpen={setIsSidebarOpen} />}
 
   <div className="flex">
-    {!shouldHideLayout && <Sidebar />}
+    {!shouldHideLayout && <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />}
     
     <div className="flex-1">
       <Routes>
