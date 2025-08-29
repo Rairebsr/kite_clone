@@ -5,7 +5,7 @@ import { Link, NavLink } from 'react-router-dom';
 import ProfileModal from './ProfileModel';
 import CartModal from './CartModal';
 
-const Navbar = ({setIsSidebar}) => {
+const Navbar = ({isSidebar,setIsSidebar}) => {
   
   const [showModal, setShowModal] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -109,7 +109,7 @@ const Navbar = ({setIsSidebar}) => {
       )}
 
       {/* Backdrop */}
-      {isSidebarOpen && (
+      {isSidebar && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden"
           onClick={() => setIsSidebar(false)}
