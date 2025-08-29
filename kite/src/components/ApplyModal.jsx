@@ -21,7 +21,7 @@ const [showApplyModal, setShowApplyModal] = useState(false);
   const [userId, setUserId] = useState(null);
 
 useEffect(() => {
-  if (selectedCategory !== "Individual") {
+  if (selectedCategory !== "individual") {
     setDiscount(12); // Fixed discount for Employee
   } else {
     setDiscount(0);
@@ -145,7 +145,8 @@ const calculateAmountPayableDiscount = () => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-xl p-6 w-[95%] max-w-4xl">
+  <div className="bg-white rounded-xl shadow-xl p-6 w-[95%] max-w-4xl max-h-[90vh] overflow-y-auto">
+
         {!selectedCategory ? (
           <>
             <h2 className="text-lg font-semibold mb-4 text-center">
@@ -175,7 +176,7 @@ const calculateAmountPayableDiscount = () => {
         ) : selectedCategory === "individual" ? (
           <div className="flex flex-col md:flex-row gap-6">
             {/* Left Section */}
-            <div className="md:w-1/2 space-y-3 text-sm">
+            <div className="w-full md:w-1/2 space-y-3 text-sm">
               <div>
                 <strong className="text-gray-500">Investor type:</strong>{" "}
                 Individual investor
@@ -221,7 +222,7 @@ const calculateAmountPayableDiscount = () => {
             <div className="md:w-1/2 space-y-4">
               <div>
                 <label className="text-gray-600 text-sm">UPI ID</label>
-                <div className="flex gap-2 mt-1">
+                <div className="flex flex-col sm:flex-row gap-2 mt-1">
                   <input
   type="text"
   placeholder="Enter your UPI ID"
@@ -251,7 +252,7 @@ const calculateAmountPayableDiscount = () => {
   <div className="font-medium">Bids ({bids.length}/3)</div>
 
   {bids.map((bid, index) => (
-    <div key={index} className="flex gap-2 mt-2 items-center">
+    <div key={index} className="flex flex-col sm:flex-row gap-2 mt-2 items-start sm:items-center">
       <input
         type="number"
         min="1"
@@ -310,7 +311,7 @@ const calculateAmountPayableDiscount = () => {
                 .
               </div>
 
-              <div className="flex justify-end gap-4 mt-2">
+              <div className="flex flex-col sm:flex-row justify-end gap-4 mt-4">
                 <button
   className={`px-4 py-2 rounded text-white ${
     isFormValid ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'
@@ -332,7 +333,7 @@ const calculateAmountPayableDiscount = () => {
         ) : (
           <div className="flex flex-col md:flex-row gap-6">
             {/* Left Section */}
-            <div className="md:w-1/2 space-y-3 text-sm">
+            <div className="w-full md:w-1/2 space-y-3 text-sm">
               <div>
                 <strong className="text-gray-500">Investor type:</strong>{" "}
                 Employee
@@ -378,7 +379,7 @@ const calculateAmountPayableDiscount = () => {
             <div className="md:w-1/2 space-y-4">
               <div>
                 <label className="text-gray-600 text-sm">UPI ID</label>
-                <div className="flex gap-2 mt-1">
+                <div className="flex flex-col sm:flex-row gap-2 mt-1">
                   <input
   type="text"
   placeholder="Enter your UPI ID"
@@ -407,7 +408,8 @@ const calculateAmountPayableDiscount = () => {
   <div className="font-medium">Bids ({bids.length}/3)</div>
 
   {bids.map((bid, index) => (
-    <div key={index} className="flex gap-2 mt-2 items-center">
+    <div key={index} className="flex flex-col sm:flex-row gap-2 mt-2 items-start sm:items-center">
+
       <input
         type="number"
         min="1"
@@ -477,7 +479,7 @@ const calculateAmountPayableDiscount = () => {
                 .
               </div>
 
-              <div className="flex justify-end gap-4 mt-2">
+              <div className="flex flex-col sm:flex-row justify-end gap-4 mt-4">
                 <button
   className={`px-4 py-2 rounded text-white ${
     isFormValid ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'
