@@ -5,7 +5,7 @@ import { Link, NavLink } from 'react-router-dom';
 import ProfileModal from './ProfileModel';
 import CartModal from './CartModal';
 
-const Navbar = ({isSidebar,setIsSidebar}) => {
+const Navbar = ({isSidebarOpen,setIsSidebarOpen}) => {
   
   const [showModal, setShowModal] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -18,7 +18,7 @@ const Navbar = ({isSidebar,setIsSidebar}) => {
       <div className="flex items-center gap-4">
         <button 
           className="md:hidden text-xl text-gray-700"
-          onClick={() => setIsSidebar(true)}
+          onClick={() => setIsSidebarOpen(true)}
         >
           <FaBars />
         </button>
@@ -109,10 +109,10 @@ const Navbar = ({isSidebar,setIsSidebar}) => {
       )}
 
       {/* Backdrop */}
-      {isSidebar && (
+      {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden"
-          onClick={() => setIsSidebar(false)}
+          onClick={() => setIsSidebarOpen(false)}
         ></div>
       )}
     </nav>

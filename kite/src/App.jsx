@@ -25,14 +25,14 @@ const App = () => {
     const hideLayoutRoutes = ['/'];
     const shouldHideLayout = hideLayoutRoutes.includes(location.pathname);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isSidebar, setIsSidebar] = useState(false);
+    
 
 
 
   return (
     <div>
   <ToastContainer />
-  {!shouldHideLayout && <Navbar isSidebar={isSidebar} setIsSidebar={setIsSidebar} />}
+  {!shouldHideLayout && <Navbar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />}
 
   <div className="flex">
     {!shouldHideLayout && <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />}
