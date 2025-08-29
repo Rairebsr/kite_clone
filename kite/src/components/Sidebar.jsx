@@ -280,7 +280,7 @@ useEffect(() => {
     
 <aside
   className={`fixed lg:static top-[56px] left-0 h-[calc(100vh-56px)] w-[80%] sm:w-[280px]
- bg-white border-r border-gray-200 z-40 transform transition-transform duration-300
+ bg-white border-r border-gray-200 z-50 transform transition-transform duration-300
   ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 flex flex-col`}
 >
       {/* Search */}
